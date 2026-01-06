@@ -14,7 +14,7 @@
             theme: { extend: { fontFamily: { sans: ['Sarabun', 'sans-serif'] }, colors: { brand: { 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' } } } }
         }
     </script>
-    <style>body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; } </style>
+    <style>body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; }</style>
 </head>
 <body>
 
@@ -22,7 +22,7 @@
 
         <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center text-white flex-col">
             <i class="fas fa-circle-notch fa-spin text-4xl mb-4"></i>
-            <p>{{ loadingText }}</p>
+            <p class="text-lg font-medium">{{ loadingText }}</p>
         </div>
 
         <div v-if="!user" class="flex-1 flex items-center justify-center bg-brand-900 bg-opacity-90 p-4" 
@@ -34,35 +34,35 @@
                 </div>
 
                 <div class="flex border-b mb-6">
-                    <button @click="authMode = 'login'" :class="authMode === 'login' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2">เข้าสู่ระบบ</button>
-                    <button @click="authMode = 'register'" :class="authMode === 'register' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2">สมัครใช้งาน</button>
+                    <button @click="authMode = 'login'" :class="authMode === 'login' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2 transition">เข้าสู่ระบบ</button>
+                    <button @click="authMode = 'register'" :class="authMode === 'register' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2 transition">สมัครใช้งาน</button>
                 </div>
 
                 <form v-if="authMode === 'login'" @submit.prevent="handleLogin" class="space-y-4">
-                    <input v-model="loginForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded">
-                    <input v-model="loginForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded">
-                    <button type="submit" class="w-full bg-brand-600 text-white py-2 rounded hover:bg-brand-700">เข้าสู่ระบบ</button>
+                    <input v-model="loginForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-brand-500 outline-none">
+                    <input v-model="loginForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-brand-500 outline-none">
+                    <button type="submit" class="w-full bg-brand-600 text-white py-2 rounded hover:bg-brand-700 font-bold shadow">เข้าสู่ระบบ</button>
                 </form>
 
                 <form v-else @submit.prevent="handleRegister" class="space-y-3">
                     <div class="grid grid-cols-2 gap-3">
-                        <input v-model="regForm.firstname" placeholder="ชื่อ" required class="px-3 py-2 border rounded text-sm">
-                        <input v-model="regForm.lastname" placeholder="นามสกุล" required class="px-3 py-2 border rounded text-sm">
+                        <input v-model="regForm.firstname" placeholder="ชื่อ" required class="px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
+                        <input v-model="regForm.lastname" placeholder="นามสกุล" required class="px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
                     </div>
-                    <input v-model="regForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded text-sm">
-                    <input v-model="regForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded text-sm">
+                    <input v-model="regForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
+                    <input v-model="regForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <select v-model="regForm.zone" required class="px-3 py-2 border rounded text-sm bg-white">
+                        <select v-model="regForm.zone" required class="px-3 py-2 border rounded text-sm bg-white outline-none focus:ring-1 focus:ring-brand-500">
                             <option value="" disabled selected>เลือกโซน</option>
                             <option v-for="n in 15" :key="n" :value="n">โซน {{ n }}</option>
                         </select>
-                        <input v-model="regForm.branch" placeholder="สาขา" required class="px-3 py-2 border rounded text-sm">
+                        <input v-model="regForm.branch" placeholder="สาขา" required class="px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
                     </div>
                     
-                    <input v-model="regForm.department" placeholder="ฝ่ายที่ (กรุณาระบุเป็นตัวเลข)" required class="w-full px-3 py-2 border rounded text-sm">
+                    <input v-model="regForm.department" placeholder="ฝ่ายที่สังกัด" required class="w-full px-3 py-2 border rounded text-sm outline-none focus:ring-1 focus:ring-brand-500">
 
-                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">สมัครสมาชิก</button>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 font-bold shadow transition">สมัครสมาชิก</button>
                 </form>
             </div>
         </div>
@@ -71,75 +71,75 @@
             <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col shadow-xl">
                 <div class="p-6 border-b border-slate-700">
                     <h2 class="font-bold truncate">{{ user.name }}</h2>
-                    <p class="text-xs text-slate-400 mt-1">
-                        <span class="bg-slate-700 px-2 py-0.5 rounded">{{ user.role }}</span>
-                    </p>
+                    <p class="text-xs text-slate-400 mt-1 uppercase tracking-wide">{{ user.role }}</p>
                 </div>
                 <nav class="flex-1 p-4 space-y-2">
-                    <a @click="currentView = 'dashboard'" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer" :class="currentView === 'dashboard' ? 'bg-brand-600' : ''"><i class="fas fa-chart-line w-6"></i> Dashboard</a>
-                    <a v-if="user.role === 'USER'" @click="navigate('create_request')" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer"><i class="fas fa-plus-circle w-6"></i> สร้างคำขอ</a>
-                    <a v-if="user.role === 'ADMIN'" @click="fetchPendingUsers" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer" :class="currentView === 'users' ? 'bg-brand-600' : ''">
+                    <a @click="currentView = 'dashboard'" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer transition" :class="currentView === 'dashboard' ? 'bg-brand-600' : ''">
+                        <i class="fas fa-chart-line w-6"></i> Dashboard
+                    </a>
+                    <a v-if="user.role === 'ADMIN'" @click="fetchPendingUsers" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer transition" :class="currentView === 'users' ? 'bg-brand-600' : ''">
                         <i class="fas fa-users w-6"></i> อนุมัติผู้ใช้ 
-                        <span v-if="pendingUsers.length > 0" class="bg-red-500 text-xs px-2 rounded-full">{{ pendingUsers.length }}</span>
+                        <span v-if="pendingUsers.length > 0" class="ml-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{ pendingUsers.length }}</span>
                     </a>
                 </nav>
-                <button @click="logout" class="p-4 text-red-400 hover:text-red-300"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+                <button @click="logout" class="p-4 text-red-400 hover:text-red-300 w-full text-left transition"><i class="fas fa-sign-out-alt mr-2"></i> ออกจากระบบ</button>
             </aside>
 
             <main class="flex-1 flex flex-col bg-gray-50 overflow-auto p-8">
-                <div v-if="currentView === 'dashboard'">
-                    <h2 class="text-2xl font-bold mb-6">ข้อมูลผู้ใช้งาน</h2>
+                <div v-if="currentView === 'dashboard'" class="max-w-4xl">
+                    <h2 class="text-2xl font-bold mb-6 text-gray-800">ข้อมูลผู้ใช้งาน</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-white p-6 rounded shadow border-l-4 border-brand-500">
-                            <h3 class="text-lg font-bold mb-2">ข้อมูลส่วนตัว</h3>
-                            <p class="text-gray-600">ชื่อ: <span class="text-black">{{ user.name }}</span></p>
-                            <p class="text-gray-600">อีเมล: <span class="text-black">{{ user.email }}</span></p>
-                            <p class="text-gray-600">สถานะ: <span class="text-green-600 font-bold">ACTIVE</span></p>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-brand-500">
+                            <h3 class="text-lg font-bold mb-3 text-brand-900">ข้อมูลส่วนตัว</h3>
+                            <div class="space-y-2">
+                                <p class="text-gray-600 text-sm">ชื่อ-นามสกุล: <span class="text-black font-medium text-base ml-2">{{ user.name }}</span></p>
+                                <p class="text-gray-600 text-sm">อีเมล: <span class="text-black font-medium text-base ml-2">{{ user.email }}</span></p>
+                                <p class="text-gray-600 text-sm">สถานะบัญชี: <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded text-xs font-bold ml-2">ACTIVE</span></p>
+                            </div>
                         </div>
-                        <div class="bg-white p-6 rounded shadow border-l-4 border-purple-500">
-                            <h3 class="text-lg font-bold mb-2">สังกัด</h3>
-                            <p class="text-gray-600">โซน: <span class="text-black">{{ user.zone }}</span></p>
-                            <p class="text-gray-600">สาขา: <span class="text-black">{{ user.branch }}</span></p>
-                            <p class="text-gray-600">ฝ่าย: <span class="text-black font-semibold">{{ user.department }}</span></p>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-purple-500">
+                            <h3 class="text-lg font-bold mb-3 text-purple-900">สังกัดและตำแหน่ง</h3>
+                            <div class="space-y-2">
+                                <p class="text-gray-600 text-sm">ฝ่าย: <span class="text-black font-medium text-base ml-2">{{ user.department }}</span></p>
+                                <p class="text-gray-600 text-sm">โซน: <span class="text-black font-medium text-base ml-2">{{ user.zone }}</span></p>
+                                <p class="text-gray-600 text-sm">สาขา: <span class="text-black font-medium text-base ml-2">{{ user.branch }}</span></p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="currentView === 'create_request'">
-                    <h2 class="text-2xl font-bold mb-4">สร้างคำขอ</h2>
-                    <div class="bg-white p-6 rounded shadow max-w-2xl text-center">
-                        <p class="text-gray-500">ส่วนนี้จะเชื่อมต่อ Sheet ในขั้นตอนต่อไป</p>
-                        <button @click="currentView = 'dashboard'" class="mt-4 text-brand-600 underline">กลับ Dashboard</button>
-                    </div>
-                </div>
-
-                <div v-if="currentView === 'users' && user.role === 'ADMIN'">
-                    <h2 class="text-2xl font-bold mb-4">ผู้สมัครรออนุมัติ</h2>
-                    <div class="bg-white rounded shadow overflow-hidden">
+                <div v-if="currentView === 'users' && user.role === 'ADMIN'" class="max-w-5xl">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-800">ผู้สมัครรออนุมัติ</h2>
+                    <div class="bg-white rounded-lg shadow overflow-hidden">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ชื่อ - อีเมล</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สังกัด</th>
-                                    <th class="px-6 py-3 text-right">Action</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ชื่อ - อีเมล</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">สังกัด (ฝ่าย/โซน/สาขา)</th>
+                                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr v-for="u in pendingUsers" :key="u.email" class="border-b hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="font-bold text-gray-900">{{ u.name }}</div>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <tr v-for="u in pendingUsers" :key="u.email" class="hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <div class="text-sm font-bold text-gray-900">{{ u.name }}</div>
                                         <div class="text-sm text-gray-500">{{ u.email }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600">
-                                        <div><span class="font-semibold">ฝ่าย:</span> {{ u.department }}</div>
-                                        <div>Zone {{ u.zone }} - {{ u.branch }}</div>
+                                    <td class="px-6 py-4">
+                                        <div class="text-sm text-gray-900"><span class="font-semibold text-brand-600">ฝ่าย: {{ u.department }}</span></div>
+                                        <div class="text-xs text-gray-500 mt-1">Zone {{ u.zone }} | {{ u.branch }}</div>
                                     </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <button @click="approveUser(u)" class="bg-green-600 text-white px-4 py-1.5 rounded text-sm hover:bg-green-700 shadow">อนุมัติ</button>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right">
+                                        <button @click="approveUser(u)" class="bg-green-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-green-700 shadow transition transform active:scale-95">
+                                            อนุมัติการใช้งาน
+                                        </button>
                                     </td>
                                 </tr>
                                 <tr v-if="pendingUsers.length === 0">
-                                    <td colspan="3" class="px-6 py-10 text-center text-gray-400">ไม่มีรายการรออนุมัติ</td>
+                                    <td colspan="3" class="px-6 py-12 text-center text-gray-400">
+                                        <i class="fas fa-check-circle text-4xl mb-3 text-gray-200 block"></i>
+                                        ไม่มีรายการรออนุมัติ
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -153,35 +153,41 @@
         const { createApp, ref } = Vue;
 
         // ==========================================
-        //  URL เดิมจาก Apps Script (ไม่ต้องเปลี่ยนถ้าไม่ได้สร้างใหม่)
+        //  !!! ใส่ URL ที่ Deploy ใหม่ ตรงนี้ !!!
         // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbwn8PZE54XvCFSKzghfwrBSZJvPda03IQ8C9kDJ9mTEu2Z_qL_niuR2HOobt9qUc92T/exec"; 
 
         createApp({
             setup() {
                 const isLoading = ref(false);
-                const loadingText = ref('กำลังประมวลผล...');
+                const loadingText = ref('');
                 const user = ref(null);
                 const authMode = ref('login');
                 const currentView = ref('dashboard');
                 const pendingUsers = ref([]);
 
                 const loginForm = ref({ email: '', password: '' });
-                // เพิ่ม department ใน regForm
                 const regForm = ref({ firstname: '', lastname: '', email: '', password: '', zone: '', branch: '', department: '' });
 
+                // Function เรียก API
                 const callApi = async (payload) => {
                     isLoading.value = true;
                     try {
+                        // ใช้ text/plain เพื่อกัน CORS Preflight ในบาง Browser
                         const res = await fetch(API_URL, {
                             method: 'POST',
                             body: JSON.stringify(payload)
                         });
+                        
+                        // เช็คว่า Response OK ไหม
+                        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                        
                         const data = await res.json();
                         return data;
                     } catch (error) {
-                        console.error(error);
-                        throw new Error("Connection Failed");
+                        console.error("API Error:", error);
+                        Swal.fire('การเชื่อมต่อล้มเหลว', 'ตรวจสอบ URL หรือ อินเทอร์เน็ตของคุณ', 'error');
+                        return null; // Return null เพื่อให้รู้ว่า Error
                     } finally {
                         isLoading.value = false;
                     }
@@ -190,69 +196,104 @@
                 const handleLogin = async () => {
                     loadingText.value = "กำลังตรวจสอบข้อมูล...";
                     const res = await callApi({ action: 'login', ...loginForm.value });
-                    if (res.status === 'success') {
+                    
+                    if (res && res.status === 'success') {
                         user.value = res;
-                        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1000, showConfirmButton: false });
+                        Swal.fire({ 
+                            icon: 'success', 
+                            title: 'ยินดีต้อนรับ', 
+                            text: `สวัสดีคุณ ${res.name}`,
+                            timer: 1500, 
+                            showConfirmButton: false 
+                        });
                         if (res.role === 'ADMIN') fetchPendingUsers();
-                    } else {
-                        Swal.fire('เข้าสู่ระบบไม่สำเร็จ', res.message, 'error');
+                    } else if (res) {
+                        Swal.fire('เข้าสู่ระบบไม่ได้', res.message, 'error');
                     }
                 };
 
+                // ฟังก์ชันสมัครสมาชิก พร้อม Alert แจ้งเตือน
                 const handleRegister = async () => {
+                    // ตรวจสอบข้อมูลเบื้องต้น (Client Side Validation)
+                    if(!regForm.value.firstname || !regForm.value.email) {
+                        Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลให้ครบทุกช่อง', 'warning');
+                        return;
+                    }
+
                     loadingText.value = "กำลังบันทึกข้อมูล...";
                     const res = await callApi({ action: 'register', ...regForm.value });
-                    if (res.status === 'success') {
-                        Swal.fire('สำเร็จ', res.message, 'success');
+                    
+                    if (res && res.status === 'success') {
+                        // !!! แจ้งเตือนตรงนี้ตามที่ขอ !!!
+                        await Swal.fire({
+                            title: 'ลงทะเบียนสำเร็จ!',
+                            text: 'ระบบได้บันทึกข้อมูลแล้ว "สถานะ: รอการอนุมัติ" กรุณารอ Admin ยืนยันสิทธิ์',
+                            icon: 'success',
+                            confirmButtonText: 'รับทราบ',
+                            confirmButtonColor: '#0284c7'
+                        });
+
                         authMode.value = 'login';
-                        // Reset Form
+                        // ล้างฟอร์ม
                         regForm.value = { firstname: '', lastname: '', email: '', password: '', zone: '', branch: '', department: '' };
-                    } else {
+                    } else if (res) {
                         Swal.fire('เกิดข้อผิดพลาด', res.message, 'error');
                     }
                 };
 
                 const fetchPendingUsers = async () => {
                     currentView.value = 'users';
-                    loadingText.value = "ดึงข้อมูล...";
+                    loadingText.value = "กำลังดึงข้อมูล...";
                     const res = await callApi({ action: 'getPending' });
-                    if (res.status === 'success') pendingUsers.value = res.data;
+                    if (res && res.status === 'success') {
+                        pendingUsers.value = res.data;
+                    }
                 };
 
                 const approveUser = async (targetUser) => {
                     const confirm = await Swal.fire({
                         title: 'ยืนยันการอนุมัติ?',
-                        text: `อนุมัติคุณ ${targetUser.name} (ฝ่าย ${targetUser.department})`,
+                        html: `จะทำการอนุมัติคุณ <b>${targetUser.name}</b><br>และส่งอีเมลแจ้งเตือนทันที`,
                         icon: 'question',
                         showCancelButton: true,
-                        confirmButtonText: 'ยืนยัน',
-                        confirmButtonColor: '#16a34a'
+                        confirmButtonText: 'อนุมัติเลย',
+                        confirmButtonColor: '#16a34a',
+                        cancelButtonText: 'ยกเลิก'
                     });
 
                     if (confirm.isConfirmed) {
-                        loadingText.value = "กำลังอนุมัติและส่งเมล...";
+                        loadingText.value = "กำลังดำเนินการ...";
                         const res = await callApi({ action: 'approve', targetEmail: targetUser.email });
-                        if (res.status === 'success') {
-                            Swal.fire('เรียบร้อย', res.message, 'success');
-                            fetchPendingUsers();
-                        } else {
+                        
+                        if (res && res.status === 'success') {
+                            Swal.fire('เรียบร้อย', 'อนุมัติและส่งอีเมลแจ้งเตือนแล้ว', 'success');
+                            fetchPendingUsers(); // Refresh ตาราง
+                        } else if (res) {
                             Swal.fire('Error', res.message, 'error');
                         }
                     }
                 };
 
                 const logout = () => {
-                    user.value = null;
-                    currentView.value = 'dashboard';
-                    loginForm.value = { email: '', password: '' };
+                    Swal.fire({
+                        title: 'ออกจากระบบ?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'ใช่, ออกจากระบบ',
+                        cancelButtonText: 'ยกเลิก'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            user.value = null;
+                            currentView.value = 'dashboard';
+                            loginForm.value = { email: '', password: '' };
+                        }
+                    });
                 };
-                
-                const navigate = (page) => { currentView.value = page; };
 
                 return {
                     isLoading, loadingText, user, authMode, currentView,
                     loginForm, regForm, pendingUsers,
-                    handleLogin, handleRegister, logout, fetchPendingUsers, approveUser, navigate
+                    handleLogin, handleRegister, logout, fetchPendingUsers, approveUser
                 };
             }
         }).mount('#app');

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบขออนุมัติงบส่งเสริม (สนญ.) - Connected</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: { extend: { fontFamily: { sans: ['Sarabun', 'sans-serif'] }, colors: { brand: { 500: '#0ea5e9', 600: '#0284c7', 900: '#0c4a6e' } } } }
+        }
+    </script>
+    <style>body { font-family: 'Sarabun', sans-serif; background-color: #f3f4f6; } canvas { border: 2px dashed #cbd5e1; }</style>
+</head>
+<body>
+
+    <div id="app" class="h-screen w-full flex flex-col overflow-hidden text-slate-800">
+
+        <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center text-white flex-col">
+            <i class="fas fa-circle-notch fa-spin text-4xl mb-4"></i>
+            <p>{{ loadingText }}</p>
+        </div>
+
+        <div v-if="!user" class="flex-1 flex items-center justify-center bg-brand-900 bg-opacity-90 p-4" 
+             style="background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format'); background-size: cover; background-blend-mode: multiply;">
+            <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-8">
+                <div class="text-center mb-6">
+                    <h1 class="text-2xl font-bold text-brand-900">ระบบขออนุมัติงบส่งเสริม</h1>
+                    <p class="text-gray-500 text-sm">เชื่อมต่อ Google Sheet</p>
+                </div>
+
+                <div class="flex border-b mb-6">
+                    <button @click="authMode = 'login'" :class="authMode === 'login' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2">เข้าสู่ระบบ</button>
+                    <button @click="authMode = 'register'" :class="authMode === 'register' ? 'text-brand-600 border-brand-600' : 'text-gray-400 border-transparent'" class="w-1/2 py-2 font-semibold border-b-2">สมัครใช้งาน</button>
+                </div>
+
+                <form v-if="authMode === 'login'" @submit.prevent="handleLogin" class="space-y-4">
+                    <input v-model="loginForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded">
+                    <input v-model="loginForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded">
+                    <button type="submit" class="w-full bg-brand-600 text-white py-2 rounded hover:bg-brand-700">เข้าสู่ระบบ</button>
+                    <p class="text-xs text-gray-500 mt-2 text-center">* ต้องได้รับการอนุมัติจาก Admin ก่อนจึงจะเข้าได้</p>
+                </form>
+
+                <form v-else @submit.prevent="handleRegister" class="space-y-3">
+                    <div class="grid grid-cols-2 gap-3">
+                        <input v-model="regForm.firstname" placeholder="ชื่อ" required class="px-3 py-2 border rounded text-sm">
+                        <input v-model="regForm.lastname" placeholder="นามสกุล" required class="px-3 py-2 border rounded text-sm">
+                    </div>
+                    <input v-model="regForm.email" type="email" placeholder="อีเมล" required class="w-full px-3 py-2 border rounded text-sm">
+                    <input v-model="regForm.password" type="password" placeholder="รหัสผ่าน" required class="w-full px-3 py-2 border rounded text-sm">
+                    <div class="grid grid-cols-2 gap-3">
+                        <select v-model="regForm.zone" required class="px-3 py-2 border rounded text-sm">
+                            <option value="" disabled selected>เลือกโซน</option>
+                            <option v-for="n in 15" :key="n" :value="n">โซน {{ n }}</option>
+                        </select>
+                        <input v-model="regForm.branch" placeholder="สาขา" required class="px-3 py-2 border rounded text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">สมัครสมาชิก</button>
+                </form>
+            </div>
+        </div>
+
+        <div v-else class="flex flex-1 overflow-hidden">
+            <aside class="w-64 bg-slate-900 text-white hidden md:flex flex-col shadow-xl">
+                <div class="p-6 border-b border-slate-700">
+                    <h2 class="font-bold truncate">{{ user.name }}</h2>
+                    <p class="text-xs text-slate-400">{{ user.role }}</p>
+                </div>
+                <nav class="flex-1 p-4 space-y-2">
+                    <a @click="currentView = 'dashboard'" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer" :class="currentView === 'dashboard' ? 'bg-brand-600' : ''"><i class="fas fa-chart-line w-6"></i> Dashboard</a>
+                    <a v-if="user.role === 'USER'" @click="navigate('create_request')" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer"><i class="fas fa-plus-circle w-6"></i> สร้างคำขอ</a>
+                    <a v-if="user.role === 'ADMIN'" @click="fetchPendingUsers" class="block px-4 py-3 rounded hover:bg-slate-800 cursor-pointer" :class="currentView === 'users' ? 'bg-brand-600' : ''">
+                        <i class="fas fa-users w-6"></i> อนุมัติผู้ใช้ 
+                        <span v-if="pendingUsers.length > 0" class="bg-red-500 text-xs px-2 rounded-full">{{ pendingUsers.length }}</span>
+                    </a>
+                </nav>
+                <button @click="logout" class="p-4 text-red-400 hover:text-red-300"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</button>
+            </aside>
+
+            <main class="flex-1 flex flex-col bg-gray-50 overflow-auto p-8">
+                <div v-if="currentView === 'dashboard'">
+                    <h2 class="text-2xl font-bold mb-6">ยินดีต้อนรับ, {{ user.name }}</h2>
+                    <div class="bg-white p-6 rounded shadow">
+                        <p>สถานะของคุณ: <span class="text-green-600 font-bold">ACTIVE</span></p>
+                        <p class="text-gray-500 mt-2">นี่คือหน้าระบบตัวอย่างที่เชื่อมต่อกับ Google Sheet แล้ว</p>
+                    </div>
+                </div>
+
+                <div v-if="currentView === 'create_request'">
+                    <h2 class="text-2xl font-bold mb-4">สร้างคำขอ</h2>
+                    <div class="bg-white p-6 rounded shadow max-w-2xl">
+                        <p class="text-gray-400 text-center py-10">ฟีเจอร์นี้ยังใช้ Mock Data เดิม (ยังไม่ได้เชื่อม Sheet)</p>
+                        <button @click="currentView = 'dashboard'" class="text-blue-500">ย้อนกลับ</button>
+                    </div>
+                </div>
+
+                <div v-if="currentView === 'users' && user.role === 'ADMIN'">
+                    <h2 class="text-2xl font-bold mb-4">รายการผู้สมัครรออนุมัติ</h2>
+                    <div class="bg-white rounded shadow overflow-hidden">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ชื่อ</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อีเมล</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สาขา</th>
+                                    <th class="px-6 py-3 text-right">จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="u in pendingUsers" :key="u.email" class="border-b">
+                                    <td class="px-6 py-4">{{ u.name }}</td>
+                                    <td class="px-6 py-4 text-gray-500">{{ u.email }}</td>
+                                    <td class="px-6 py-4 text-gray-500">Zone {{ u.zone }} - {{ u.branch }}</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button @click="approveUser(u)" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">อนุมัติ</button>
+                                    </td>
+                                </tr>
+                                <tr v-if="pendingUsers.length === 0">
+                                    <td colspan="4" class="px-6 py-10 text-center text-gray-500">ไม่มีรายการรออนุมัติ</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref } = Vue;
+
+        // ==========================================
+        //  วาง URL จาก Google Apps Script ตรงนี้
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbwn8PZE54XvCFSKzghfwrBSZJvPda03IQ8C9kDJ9mTEu2Z_qL_niuR2HOobt9qUc92T/exec"; 
+
+        createApp({
+            setup() {
+                const isLoading = ref(false);
+                const loadingText = ref('กำลังประมวลผล...');
+                const user = ref(null);
+                const authMode = ref('login');
+                const currentView = ref('dashboard');
+                const pendingUsers = ref([]);
+
+                const loginForm = ref({ email: '', password: '' });
+                const regForm = ref({ firstname: '', lastname: '', email: '', password: '', zone: '', branch: '' });
+
+                // Core API Fetch Function
+                const callApi = async (payload) => {
+                    isLoading.value = true;
+                    try {
+                        // ใช้ fetch แบบ text/plain เพื่อเลี่ยง CORS preflight error ของ GAS
+                        const res = await fetch(API_URL, {
+                            method: 'POST',
+                            body: JSON.stringify(payload)
+                        });
+                        const data = await res.json();
+                        return data;
+                    } catch (error) {
+                        console.error(error);
+                        throw new Error("Connection Failed");
+                    } finally {
+                        isLoading.value = false;
+                    }
+                };
+
+                const handleLogin = async () => {
+                    loadingText.value = "กำลังตรวจสอบข้อมูล...";
+                    const res = await callApi({ action: 'login', ...loginForm.value });
+                    
+                    if (res.status === 'success') {
+                        user.value = res;
+                        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false });
+                        if (res.role === 'ADMIN') fetchPendingUsers();
+                    } else {
+                        Swal.fire('Login Failed', res.message, 'error');
+                    }
+                };
+
+                const handleRegister = async () => {
+                    loadingText.value = "กำลังบันทึกข้อมูล...";
+                    const res = await callApi({ action: 'register', ...regForm.value });
+                    
+                    if (res.status === 'success') {
+                        Swal.fire('สมัครสมาชิกเรียบร้อย', res.message, 'success');
+                        authMode.value = 'login';
+                        regForm.value = { firstname: '', lastname: '', email: '', password: '', zone: '', branch: '' };
+                    } else {
+                        Swal.fire('Error', res.message, 'error');
+                    }
+                };
+
+                const fetchPendingUsers = async () => {
+                    currentView.value = 'users';
+                    loadingText.value = "ดึงข้อมูล...";
+                    const res = await callApi({ action: 'getPending' });
+                    if (res.status === 'success') {
+                        pendingUsers.value = res.data;
+                    }
+                };
+
+                const approveUser = async (targetUser) => {
+                    const confirm = await Swal.fire({
+                        title: 'ยืนยันการอนุมัติ?',
+                        text: `ระบบจะส่งอีเมลแจ้งเตือนไปที่ ${targetUser.email}`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'อนุมัติเลย'
+                    });
+
+                    if (confirm.isConfirmed) {
+                        loadingText.value = "กำลังอนุมัติและส่งเมล...";
+                        const res = await callApi({ action: 'approve', targetEmail: targetUser.email });
+                        
+                        if (res.status === 'success') {
+                            Swal.fire('เรียบร้อย', res.message, 'success');
+                            fetchPendingUsers(); // รีเฟรชตาราง
+                        } else {
+                            Swal.fire('Error', res.message, 'error');
+                        }
+                    }
+                };
+
+                const logout = () => {
+                    user.value = null;
+                    currentView.value = 'dashboard';
+                    loginForm.value = { email: '', password: '' };
+                };
+                
+                const navigate = (page) => { currentView.value = page; };
+
+                return {
+                    isLoading, loadingText, user, authMode, currentView,
+                    loginForm, regForm, pendingUsers,
+                    handleLogin, handleRegister, logout, fetchPendingUsers, approveUser, navigate
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>

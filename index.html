@@ -3,385 +3,359 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Console (HQ)</title>
+    <title>ระบบงบประมาณ (สนญ.)</title>
+    
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Sarabun', sans-serif; background-color: #f8fafc; }
-        .sidebar-item { @apply flex items-center gap-3 px-6 py-3 text-gray-400 cursor-pointer hover:bg-gray-800 hover:text-white transition-colors border-l-4 border-transparent; }
-        .sidebar-item.active { @apply bg-gray-800 text-white border-blue-500; }
-        .card-stat { @apply bg-white p-6 rounded-xl shadow-sm border border-gray-100; }
-        .table-head { @apply bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider; }
-        .btn-action { @apply px-3 py-1 rounded text-xs font-bold transition shadow-sm; }
-        canvas { background: white; cursor: crosshair; touch-action: none; }
+        body { font-family: 'Sarabun', sans-serif; background: #f3f4f6; }
+        .sidebar-link { @apply flex items-center gap-3 px-6 py-3 text-gray-400 hover:bg-gray-800 hover:text-white cursor-pointer transition border-l-4 border-transparent; }
+        .sidebar-link.active { @apply bg-gray-800 text-white border-blue-500; }
+        canvas { touch-action: none; background: white; cursor: crosshair; }
     </style>
 </head>
 <body>
 
 <div id="app" class="h-screen w-full flex overflow-hidden">
 
-    <aside v-if="user" class="w-64 bg-gray-900 flex flex-col shadow-2xl z-20">
-        <div class="h-16 flex items-center justify-center border-b border-gray-800">
-            <h1 class="text-white font-bold text-xl"><i class="fas fa-shield-alt text-blue-500 mr-2"></i> ADMIN HQ</h1>
-        </div>
-
-        <div class="flex-1 overflow-y-auto py-4">
-            <p class="px-6 text-xs font-bold text-gray-500 uppercase mb-2">ภาพรวม</p>
-            <div @click="view='dashboard'" :class="['sidebar-item', view==='dashboard'?'active':'']">
-                <i class="fas fa-chart-pie w-5"></i> แดชบอร์ด
-            </div>
-
-            <p class="px-6 text-xs font-bold text-gray-500 uppercase mb-2 mt-6">จัดการ</p>
-            <div @click="view='pending_users'" :class="['sidebar-item', view==='pending_users'?'active':'']">
-                <i class="fas fa-user-clock w-5"></i> ผู้สมัครรออนุมัติ
-                <span v-if="stats.pendingUserCount>0" class="ml-auto bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{{stats.pendingUserCount}}</span>
-            </div>
-            <div @click="view='requests'" :class="['sidebar-item', view==='requests'?'active':'']">
-                <i class="fas fa-file-invoice-dollar w-5"></i> คำขอใช้งบทั้งหมด
-                <span v-if="stats.pendingReqCount>0" class="ml-auto bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">{{stats.pendingReqCount}}</span>
-            </div>
-            <div @click="view='documents'" :class="['sidebar-item', view==='documents'?'active':'']">
-                <i class="fas fa-folder-open w-5"></i> เอกสารทั้งหมด
-            </div>
-
-            <p class="px-6 text-xs font-bold text-gray-500 uppercase mb-2 mt-6">ระบบ</p>
-            <div @click="view='export'" :class="['sidebar-item', view==='export'?'active':'']">
-                <i class="fas fa-file-export w-5"></i> Export / รายงาน
-            </div>
-            <div @click="logout" class="sidebar-item hover:text-red-400 mt-auto">
-                <i class="fas fa-sign-out-alt w-5"></i> ออกจากระบบ
-            </div>
-        </div>
-    </aside>
-
-    <main class="flex-1 flex flex-col bg-gray-100 overflow-hidden relative">
-        
-        <header v-if="user" class="h-16 bg-white shadow-sm flex justify-between items-center px-8 z-10">
-            <h2 class="text-xl font-bold text-gray-800">{{ pageTitle }}</h2>
-            <div class="flex items-center gap-4">
-                <div class="text-right">
-                    <p class="text-sm font-bold text-gray-900">{{ user.name }}</p>
-                    <p class="text-xs text-blue-600 font-bold uppercase">{{ user.role }} | {{ user.department }}</p>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-                    {{ user.name.charAt(0) }}
-                </div>
-            </div>
-        </header>
-
-        <div class="flex-1 overflow-auto p-8 relative">
+    <div v-if="!user" class="fixed inset-0 bg-gray-900 z-50 flex items-center justify-center p-4 bg-[url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format')] bg-cover bg-blend-multiply">
+        <div class="bg-white w-full max-w-md p-8 rounded-xl shadow-2xl">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ระบบงบประมาณ</h2>
             
-            <div v-if="loading" class="absolute inset-0 bg-white/80 z-50 flex items-center justify-center flex-col">
-                <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-2"></i>
-                <p class="text-gray-500 animate-pulse">{{ loadingText }}</p>
+            <div class="flex bg-gray-100 p-1 rounded-lg mb-6">
+                <button @click="authMode='login'" :class="['flex-1 py-2 text-sm font-bold rounded', authMode==='login'?'bg-white shadow text-blue-600':'text-gray-500']">เข้าสู่ระบบ</button>
+                <button @click="authMode='register'" :class="['flex-1 py-2 text-sm font-bold rounded', authMode==='register'?'bg-white shadow text-blue-600':'text-gray-500']">สมัครใหม่</button>
             </div>
 
-            <div v-if="!user" class="h-full flex items-center justify-center">
-                <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
-                    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h2>
-                    <form @submit.prevent="login">
-                        <input v-model="loginForm.email" type="email" placeholder="Email" class="w-full border p-3 rounded mb-4" required>
-                        <input v-model="loginForm.password" type="password" placeholder="Password" class="w-full border p-3 rounded mb-6" required>
-                        <button type="submit" class="w-full bg-gray-900 text-white py-3 rounded font-bold hover:bg-black">เข้าสู่ระบบ</button>
-                    </form>
+            <form v-if="authMode==='login'" @submit.prevent="login" class="space-y-4">
+                <input v-model="form.email" type="email" placeholder="Email" class="w-full border p-3 rounded" required>
+                <input v-model="form.pass" type="password" placeholder="Password" class="w-full border p-3 rounded" required>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">Login</button>
+            </form>
+
+            <form v-else @submit.prevent="register" class="space-y-3">
+                <input v-model="reg.name" placeholder="ชื่อ-สกุล" class="w-full border p-2 rounded" required>
+                <input v-model="reg.email" type="email" placeholder="Email" class="w-full border p-2 rounded" required>
+                <input v-model="reg.password" type="password" placeholder="Password" class="w-full border p-2 rounded" required>
+                <div class="grid grid-cols-2 gap-2">
+                    <select v-model="reg.zone" class="border p-2 rounded" required>
+                        <option value="" disabled selected>เลือกโซน</option>
+                        <option v-for="n in 15" :value="n">Zone {{n}}</option>
+                    </select>
+                    <input v-model="reg.branch" placeholder="สาขา" class="border p-2 rounded" required>
                 </div>
+                <input v-model="reg.dept" placeholder="ฝ่าย" class="w-full border p-2 rounded" required>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <template v-else>
+        <aside class="w-64 bg-gray-900 text-white flex flex-col shadow-xl">
+            <div class="h-16 flex items-center px-6 font-bold text-lg border-b border-gray-800">
+                <i class="fas fa-coins text-blue-500 mr-2"></i> Budget System
             </div>
+            <div class="flex-1 py-4 overflow-y-auto">
+                
+                <template v-if="user.role === 'ADMIN'">
+                    <p class="px-6 text-xs text-gray-500 font-bold uppercase mb-2">Admin Menu</p>
+                    <a @click="setPage('dashboard')" :class="['sidebar-link', page==='dashboard'?'active':'']"><i class="fas fa-chart-pie w-5"></i> แดชบอร์ด</a>
+                    <a @click="setPage('users')" :class="['sidebar-link', page==='users'?'active':'']">
+                        <i class="fas fa-users w-5"></i> อนุมัติผู้สมัคร
+                        <span v-if="stats.pendingUsers>0" class="ml-auto bg-red-500 text-xs px-2 rounded-full">{{stats.pendingUsers}}</span>
+                    </a>
+                    <a @click="setPage('requests')" :class="['sidebar-link', page==='requests'?'active':'']">
+                        <i class="fas fa-list w-5"></i> คำขอทั้งหมด
+                        <span v-if="stats.pendingReq>0" class="ml-auto bg-orange-500 text-xs px-2 rounded-full">{{stats.pendingReq}}</span>
+                    </a>
+                    <a @click="setPage('logs')" :class="['sidebar-link', page==='logs'?'active':'']"><i class="fas fa-history w-5"></i> Audit Logs</a>
+                    <a @click="setPage('export')" :class="['sidebar-link', page==='export'?'active':'']"><i class="fas fa-download w-5"></i> Export</a>
+                </template>
 
-            <div v-else>
+                <template v-else>
+                    <p class="px-6 text-xs text-gray-500 font-bold uppercase mb-2">User Menu</p>
+                    <a @click="setPage('create')" :class="['sidebar-link', page==='create'?'active':'']"><i class="fas fa-plus w-5"></i> สร้างคำขอ</a>
+                    <a @click="setPage('my_requests')" :class="['sidebar-link', page==='my_requests'?'active':'']"><i class="fas fa-list-alt w-5"></i> ประวัติของฉัน</a>
+                </template>
+            </div>
+            <div class="p-4 bg-gray-800">
+                <button @click="logout" class="flex items-center text-red-400 hover:text-white"><i class="fas fa-sign-out-alt mr-2"></i> ออกจากระบบ</button>
+            </div>
+        </aside>
 
-                <div v-if="view === 'dashboard'" class="space-y-6">
-                    <div class="flex justify-end"><button @click="fetchData" class="text-blue-600 text-sm hover:underline"><i class="fas fa-sync"></i> Refresh Real-time</button></div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="card-stat border-l-4 border-blue-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">ผู้ใช้ทั้งหมด</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.totalUsers }}</p>
-                            <p class="text-xs text-green-500 mt-1">ใช้งานได้ {{ stats.activeUserCount }}</p>
-                        </div>
-                        <div class="card-stat border-l-4 border-yellow-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">ผู้สมัครรออนุมัติ</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.pendingUserCount }}</p>
-                        </div>
-                        <div class="card-stat border-l-4 border-orange-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">คำขอรออนุมัติ</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-2">{{ stats.pendingReqCount }}</p>
-                        </div>
-                        <div class="card-stat border-l-4 border-purple-500">
-                            <p class="text-gray-500 text-xs font-bold uppercase">โซนคำขอสูงสุด</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-2">Zone {{ stats.maxZone }}</p>
-                        </div>
-                    </div>
+        <main class="flex-1 flex flex-col overflow-hidden bg-gray-100">
+            <header class="h-16 bg-white shadow-sm flex justify-between items-center px-8">
+                <h2 class="font-bold text-xl text-gray-800">{{ pageName }}</h2>
+                <div class="text-right">
+                    <p class="font-bold text-sm">{{ user.name }}</p>
+                    <p class="text-xs text-blue-600">{{ user.role }} | {{ user.dept }}</p>
+                </div>
+            </header>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-gray-800 text-white p-6 rounded-xl shadow">
-                            <p class="text-gray-400 text-xs font-bold uppercase">งบรวมทั้งประเทศ</p>
-                            <p class="text-2xl font-bold text-green-400 mt-2">{{ formatMoney(stats.totalBudget) }}</p>
+            <div class="flex-1 overflow-auto p-8 relative">
+                <div v-if="loading" class="absolute inset-0 bg-white/80 z-40 flex items-center justify-center flex-col">
+                    <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500"></i>
+                    <p class="text-gray-500 mt-2">กำลังโหลด...</p>
+                </div>
+
+                <div v-if="page==='dashboard'" class="space-y-6">
+                    <div class="grid grid-cols-4 gap-6">
+                        <div class="bg-white p-6 rounded shadow border-l-4 border-blue-500">
+                            <p class="text-xs font-bold text-gray-500">USER ทั้งหมด</p>
+                            <p class="text-3xl font-bold">{{ stats.totalUsers }}</p>
                         </div>
-                        <div class="bg-white p-6 rounded-xl shadow">
-                            <p class="text-gray-500 text-xs font-bold uppercase">ใช้ไปแล้ว</p>
-                            <p class="text-2xl font-bold text-red-500 mt-2">{{ formatMoney(stats.usedBudget) }}</p>
+                        <div class="bg-white p-6 rounded shadow border-l-4 border-orange-500">
+                            <p class="text-xs font-bold text-gray-500">คำขอรออนุมัติ</p>
+                            <p class="text-3xl font-bold">{{ stats.pendingReq }}</p>
                         </div>
-                        <div class="bg-white p-6 rounded-xl shadow">
-                            <p class="text-gray-500 text-xs font-bold uppercase">คงเหลือ</p>
-                            <p class="text-2xl font-bold text-blue-500 mt-2">{{ formatMoney(stats.remainingBudget) }}</p>
+                        <div class="bg-white p-6 rounded shadow border-l-4 border-green-500">
+                            <p class="text-xs font-bold text-gray-500">งบอนุมัติแล้ว</p>
+                            <p class="text-2xl font-bold text-green-600">{{ currency(stats.usedBudget) }}</p>
+                        </div>
+                        <div class="bg-white p-6 rounded shadow border-l-4 border-gray-500">
+                            <p class="text-xs font-bold text-gray-500">งบคงเหลือ</p>
+                            <p class="text-2xl font-bold text-blue-600">{{ currency(stats.remainBudget) }}</p>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="view === 'pending_users'" class="bg-white rounded-xl shadow overflow-hidden">
+                <div v-if="page==='users'" class="bg-white rounded shadow overflow-hidden">
                     <table class="w-full text-sm text-left">
-                        <thead class="table-head"><tr><th class="p-4">ชื่อ-สกุล</th><th class="p-4">สังกัด</th><th class="p-4">กำหนด Role</th><th class="p-4">กำหนดวงเงิน</th><th class="p-4 text-center">Action</th></tr></thead>
+                        <thead class="bg-gray-100 uppercase text-xs"><tr><th class="p-4">ชื่อ</th><th class="p-4">สังกัด</th><th class="p-4">Role</th><th class="p-4">Limit</th><th class="p-4">Action</th></tr></thead>
                         <tbody>
-                            <tr v-for="u in pendingUsers" :key="u.email" class="border-b hover:bg-gray-50">
-                                <td class="p-4 font-bold">{{ u.name }}<br><span class="text-xs text-gray-400 font-normal">{{ u.email }}</span></td>
+                            <tr v-for="u in pendingUsers" :key="u.email" class="border-b">
+                                <td class="p-4 font-bold">{{ u.name }}<br><span class="text-xs font-normal text-gray-400">{{ u.email }}</span></td>
                                 <td class="p-4">{{ u.dept }} (Z{{ u.zone }})</td>
                                 <td class="p-4"><select v-model="u.tempRole" class="border p-1 rounded"><option value="USER">User</option><option value="ADMIN">Admin</option></select></td>
-                                <td class="p-4"><input type="number" v-model="u.tempLimit" class="border p-1 rounded w-24" placeholder="0"></td>
-                                <td class="p-4 text-center flex justify-center gap-2">
-                                    <button @click="processUser(u, true)" class="btn-action bg-green-500 text-white hover:bg-green-600">อนุมัติ</button>
-                                    <button @click="processUser(u, false)" class="btn-action bg-red-500 text-white hover:bg-red-600">ปฏิเสธ</button>
-                                </td>
+                                <td class="p-4"><input type="number" v-model="u.tempLimit" class="border p-1 w-24 rounded" placeholder="0"></td>
+                                <td class="p-4"><button @click="approveUser(u, true)" class="bg-green-500 text-white px-3 py-1 rounded text-xs mr-2">อนุมัติ</button><button @click="approveUser(u, false)" class="bg-red-500 text-white px-3 py-1 rounded text-xs">ปฏิเสธ</button></td>
                             </tr>
-                            <tr v-if="pendingUsers.length===0"><td colspan="5" class="p-6 text-center text-gray-400">ไม่มีผู้รออนุมัติ</td></tr>
+                            <tr v-if="pendingUsers.length===0"><td colspan="5" class="p-6 text-center text-gray-400">ไม่มีรายการ</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <div v-if="view === 'requests'" class="space-y-4">
-                    <div class="bg-white p-4 rounded-xl shadow flex gap-4 flex-wrap">
-                        <span class="font-bold text-gray-500 py-2"><i class="fas fa-filter"></i> ตัวกรอง:</span>
-                        <select v-model="filters.zone" class="border p-2 rounded text-sm"><option value="">ทุกโซน</option><option v-for="n in 15" :value="n">Zone {{n}}</option></select>
-                        <select v-model="filters.status" class="border p-2 rounded text-sm"><option value="">ทุกสถานะ</option><option value="PENDING_HQ">รออนุมัติ</option><option value="APPROVED">อนุมัติแล้ว</option></select>
-                        <input v-model="filters.search" placeholder="ค้นหาชื่อผู้ขอ..." class="border p-2 rounded text-sm flex-1">
+                <div v-if="page==='requests' || page==='my_requests'" class="space-y-4">
+                    <div v-if="user.role==='ADMIN'" class="flex gap-4 mb-4">
+                        <select v-model="filterStatus" class="border p-2 rounded"><option value="">ทุกสถานะ</option><option value="PENDING_HQ">รออนุมัติ</option><option value="APPROVED">อนุมัติแล้ว</option></select>
+                        <input v-model="filterSearch" placeholder="ค้นหาชื่อ..." class="border p-2 rounded flex-1">
                     </div>
-                    
-                    <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <div class="bg-white rounded shadow overflow-hidden">
                         <table class="w-full text-sm text-left">
-                            <thead class="table-head"><tr><th class="p-4">ID</th><th class="p-4">เรื่อง</th><th class="p-4">ผู้ขอ</th><th class="p-4 text-right">ยอดเงิน</th><th class="p-4 text-center">สถานะ</th><th class="p-4 text-center">จัดการ</th></tr></thead>
+                            <thead class="bg-gray-100 uppercase text-xs"><tr><th class="p-4">วันที่</th><th class="p-4">เรื่อง</th><th class="p-4">ผู้ขอ</th><th class="p-4 text-right">ยอดเงิน</th><th class="p-4 text-center">สถานะ</th><th class="p-4"></th></tr></thead>
                             <tbody>
-                                <tr v-for="req in filteredRequests" :key="req.id" class="border-b hover:bg-gray-50">
-                                    <td class="p-4 font-bold text-blue-600">{{ req.id }}<br><span class="text-xs text-gray-400 font-normal">{{ formatDate(req.date) }}</span></td>
-                                    <td class="p-4">{{ req.title }}</td>
-                                    <td class="p-4">{{ req.requester }} (Z{{ req.zone }})</td>
-                                    <td class="p-4 text-right font-mono">{{ formatMoney(req.amount) }}</td>
-                                    <td class="p-4 text-center"><span :class="getStatusClass(req.status)">{{ req.status }}</span></td>
-                                    <td class="p-4 text-center"><button @click="openDetail(req)" class="text-blue-600 border border-blue-200 px-3 py-1 rounded bg-blue-50 hover:bg-blue-100 font-bold text-xs">ตรวจสอบ</button></td>
+                                <tr v-for="req in filteredReqs" :key="req.id" class="border-b hover:bg-gray-50">
+                                    <td class="p-4 text-gray-500">{{ date(req.date) }}</td>
+                                    <td class="p-4 font-bold text-gray-800">{{ req.title }}</td>
+                                    <td class="p-4">{{ req.requester }}</td>
+                                    <td class="p-4 text-right font-mono">{{ currency(req.amount) }}</td>
+                                    <td class="p-4 text-center"><span :class="statusClass(req.status)">{{ req.status }}</span></td>
+                                    <td class="p-4 text-center">
+                                        <button @click="openDetail(req)" class="text-blue-600 border border-blue-200 px-3 py-1 rounded hover:bg-blue-50 text-xs">ดูข้อมูล</button>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
 
-                <div v-if="view === 'documents'" class="bg-white rounded-xl shadow p-6">
-                    <h3 class="font-bold mb-4">คลังเอกสารย้อนหลัง</h3>
-                    <table class="w-full text-sm text-left">
-                        <thead class="bg-gray-100"><tr><th class="p-3">ID</th><th class="p-3">เอกสารแนบ (ต้นฉบับ)</th><th class="p-3">สถานะ</th></tr></thead>
-                        <tbody>
-                            <tr v-for="req in allRequests" :key="req.id" class="border-b">
-                                <td class="p-3">{{ req.id }}</td>
-                                <td class="p-3">
-                                    <button v-if="req.fileId" @click="previewFile(req.fileId)" class="text-blue-600 hover:underline"><i class="fas fa-paperclip"></i> ดูไฟล์</button>
-                                    <span v-else class="text-gray-300">-</span>
-                                </td>
-                                <td class="p-3">{{ req.status }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div v-if="page==='create'" class="max-w-2xl mx-auto bg-white p-8 rounded shadow">
+                    <h3 class="font-bold text-lg mb-4">สร้างคำขอใหม่</h3>
+                    <form @submit.prevent="submitRequest" class="space-y-4">
+                        <input v-model="newReq.title" placeholder="หัวข้อ" class="w-full border p-2 rounded" required>
+                        <input v-model="newReq.amount" type="number" placeholder="งบประมาณ" class="w-full border p-2 rounded" required>
+                        <textarea v-model="newReq.desc" placeholder="รายละเอียด" class="w-full border p-2 rounded" rows="3" required></textarea>
+                        <div class="border-2 border-dashed p-4 text-center">
+                            <p class="text-sm text-gray-500 mb-2">แนบไฟล์ (PDF/รูป)</p>
+                            <input type="file" @change="handleFile">
+                        </div>
+                        <button class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">ส่งคำขอ</button>
+                    </form>
                 </div>
 
-                <div v-if="view === 'export'" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div @click="downloadCSV('users')" class="bg-white p-8 rounded-xl shadow text-center cursor-pointer border hover:border-blue-500 transition">
-                        <i class="fas fa-users text-4xl text-blue-500 mb-3"></i>
-                        <h3 class="font-bold">Export Users</h3>
-                    </div>
-                    <div @click="downloadCSV('requests')" class="bg-white p-8 rounded-xl shadow text-center cursor-pointer border hover:border-green-500 transition">
-                        <i class="fas fa-file-invoice-dollar text-4xl text-green-500 mb-3"></i>
-                        <h3 class="font-bold">Export Requests</h3>
-                    </div>
-                    <div @click="downloadCSV('logs')" class="bg-white p-8 rounded-xl shadow text-center cursor-pointer border hover:border-gray-500 transition">
-                        <i class="fas fa-history text-4xl text-gray-500 mb-3"></i>
-                        <h3 class="font-bold">Export Logs</h3>
-                    </div>
+                <div v-if="page==='export'" class="grid grid-cols-3 gap-6">
+                    <div @click="doExport('users')" class="bg-white p-8 text-center rounded shadow cursor-pointer hover:border-blue-500 border border-transparent"><i class="fas fa-users text-4xl text-blue-500 mb-2"></i><br>Export Users</div>
+                    <div @click="doExport('requests')" class="bg-white p-8 text-center rounded shadow cursor-pointer hover:border-green-500 border border-transparent"><i class="fas fa-file-invoice text-4xl text-green-500 mb-2"></i><br>Export Requests</div>
+                    <div @click="doExport('logs')" class="bg-white p-8 text-center rounded shadow cursor-pointer hover:border-gray-500 border border-transparent"><i class="fas fa-history text-4xl text-gray-500 mb-2"></i><br>Export Logs</div>
+                </div>
+                
+                <div v-if="page==='logs'" class="bg-gray-800 text-green-400 p-6 rounded font-mono text-xs">
+                    <p>Audit Log System Active...</p>
+                    <button @click="doExport('logs')" class="mt-4 bg-gray-600 text-white px-3 py-1 rounded">Download CSV</button>
                 </div>
 
             </div>
         </main>
+    </template>
 
-        <div v-if="selectedReq" class="fixed inset-0 bg-black/80 z-50 flex justify-end">
-            <div class="bg-white w-full max-w-2xl h-full shadow-2xl flex flex-col animate-[slideIn_0.3s]">
+    <div v-if="selectedReq" class="fixed inset-0 bg-black/80 z-50 flex justify-end">
+        <div class="bg-white w-full max-w-xl h-full flex flex-col">
+            <div class="p-4 border-b flex justify-between bg-gray-50">
+                <h3 class="font-bold">{{ selectedReq.title }}</h3>
+                <button @click="selectedReq=null"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="flex-1 overflow-auto p-6 space-y-4">
+                <div class="bg-blue-50 p-4 rounded border border-blue-100">
+                    <p class="font-bold text-blue-800">ผู้ขอ: {{ selectedReq.requester }}</p>
+                    <p class="text-sm">งบ: {{ currency(selectedReq.amount) }}</p>
+                    <p class="text-sm mt-2 text-gray-600">{{ selectedReq.desc }}</p>
+                </div>
                 
-                <div class="p-6 border-b flex justify-between items-center bg-gray-50">
-                    <div>
-                        <h3 class="text-xl font-bold text-gray-800">{{ selectedReq.title }}</h3>
-                        <p class="text-sm text-gray-500">{{ selectedReq.id }} | {{ formatDate(selectedReq.date) }}</p>
-                    </div>
-                    <button @click="selectedReq=null"><i class="fas fa-times text-2xl text-gray-400 hover:text-red-500"></i></button>
+                <div v-if="selectedReq.fileId">
+                    <a :href="`https://drive.google.com/file/d/${selectedReq.fileId}/preview`" target="_blank" class="block w-full text-center border p-2 rounded text-blue-600 font-bold hover:bg-blue-50">
+                        <i class="fas fa-eye mr-2"></i> ดูเอกสารแนบ
+                    </a>
                 </div>
+                <div v-else class="text-center text-gray-400">- ไม่มีเอกสาร -</div>
 
-                <div class="flex-1 overflow-y-auto p-6 space-y-6">
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-100 grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="text-xs text-blue-500 font-bold uppercase">ผู้ขอ</p>
-                            <p class="font-bold text-gray-800">{{ selectedReq.requester }}</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-xs text-blue-500 font-bold uppercase">งบที่ขอ</p>
-                            <p class="text-xl font-bold text-blue-600 font-mono">{{ formatMoney(selectedReq.amount) }}</p>
-                        </div>
-                        <div class="col-span-2 text-sm text-gray-600 border-t border-blue-200 pt-2">
-                            สังกัด: {{ selectedReq.dept }} (Zone {{ selectedReq.zone }})
-                        </div>
+                <div v-if="user.role === 'ADMIN' && selectedReq.status === 'PENDING_HQ'" class="border-t pt-4">
+                    <p class="font-bold mb-2 text-red-500">ส่วนอนุมัติ</p>
+                    <textarea v-model="adminNote" class="w-full border p-2 rounded mb-2 text-sm" placeholder="หมายเหตุ..."></textarea>
+                    <div class="border rounded mb-2 bg-gray-50">
+                        <canvas ref="sigCanvas" width="400" height="150" class="w-full cursor-crosshair"></canvas>
+                        <div @click="clearSig" class="text-right text-xs text-red-500 p-1 cursor-pointer">ล้างลายเซ็น</div>
                     </div>
-
-                    <div>
-                        <p class="text-xs font-bold text-gray-500 uppercase mb-2">รายละเอียด</p>
-                        <div class="bg-gray-100 p-4 rounded text-sm text-gray-700">{{ selectedReq.desc }}</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button @click="processReq('REJECTED')" class="bg-red-100 text-red-600 py-2 rounded font-bold">ไม่อนุมัติ</button>
+                        <button @click="processReq('APPROVED')" class="bg-green-600 text-white py-2 rounded font-bold">อนุมัติ</button>
                     </div>
-
-                    <div>
-                        <p class="text-xs font-bold text-gray-500 uppercase mb-2">เอกสารแนบ</p>
-                        <button v-if="selectedReq.fileId" @click="previewFile(selectedReq.fileId)" class="flex items-center gap-2 px-4 py-2 bg-white border rounded text-blue-600 font-bold hover:bg-blue-50 transition shadow-sm">
-                            <i class="fas fa-eye"></i> เปิดดูเอกสารทันที
-                        </button>
-                        <p v-else class="text-gray-400 text-sm italic">- ไม่มีเอกสาร -</p>
-                    </div>
-
-                    <div v-if="selectedReq.status === 'PENDING_HQ'" class="border-t-2 border-dashed pt-6 mt-4">
-                        <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="fas fa-pen-nib text-blue-500"></i> ส่วนการอนุมัติ</h4>
-                        
-                        <label class="block text-sm text-gray-600 mb-1">ความเห็น (Note)</label>
-                        <textarea v-model="adminNote" class="w-full border rounded p-2 text-sm mb-4 bg-gray-50 focus:bg-white" rows="2"></textarea>
-                        
-                        <label class="block text-sm text-gray-600 mb-1">ลายเซ็นผู้อนุมัติ <span class="text-red-500">*</span></label>
-                        <div class="border rounded mb-4 relative bg-white shadow-inner">
-                            <canvas ref="sigCanvas" width="500" height="150" class="w-full h-32"></canvas>
-                            <div @click="clearSig" class="absolute bottom-2 right-2 text-xs text-red-500 cursor-pointer hover:underline font-bold">ล้างลายเซ็น</div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <button @click="processReq('REJECTED')" class="py-3 bg-red-100 text-red-600 font-bold rounded hover:bg-red-200 transition">ไม่อนุมัติ / ตีกลับ</button>
-                            <button @click="processReq('APPROVED')" class="py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 shadow-lg transition transform active:scale-95">อนุมัติคำขอ</button>
-                        </div>
-                    </div>
+                </div>
+                
+                <div v-if="selectedReq.status !== 'PENDING_HQ'" class="text-center p-4 bg-gray-100 rounded">
+                    <p class="font-bold">สถานะ: {{ selectedReq.status }}</p>
+                    <p class="text-sm text-gray-500">Note: {{ selectedReq.note || '-' }}</p>
                 </div>
             </div>
         </div>
-
-        <div v-if="previewUrl" class="fixed inset-0 bg-black/95 z-[99] flex flex-col p-4 animate-[fadeIn_0.2s]">
-            <div class="text-right mb-2"><button @click="previewUrl=null" class="text-white text-3xl hover:text-red-500"><i class="fas fa-times"></i></button></div>
-            <div class="flex-1 bg-white rounded-lg overflow-hidden">
-                <iframe :src="previewUrl" class="w-full h-full border-0"></iframe>
-            </div>
-        </div>
-
     </div>
+
 </div>
 
 <script>
-// 🔴🔴🔴 ใส่ URL APPS SCRIPT ตรงนี้ 🔴🔴🔴
-const API_URL = "https://script.google.com/macros/s/AKfycbxsDYrGWGZ8WBYOHc9K1E52sPJrN4ZMgib7FOatvb2GgS7lcKIVXIlhlkVi8nNcF5nA/exec";
+// 🔴🔴🔴 ใส่ URL APPS SCRIPT ของคุณตรงนี้ 🔴🔴🔴
+const API_URL = "URL_APPS_SCRIPT_ของคุณ";
 
 const { createApp } = Vue;
 
 createApp({
     data() {
         return {
-            loading: false, loadingText:'',
-            user: null, view: 'dashboard',
+            loading: false, authMode: 'login',
+            user: null, page: 'dashboard',
             loginForm: {email:'', password:''},
-            stats: {}, pendingUsers: [], allRequests: [],
-            filters: {zone:'', status:'', search:''},
-            selectedReq: null, adminNote: '', previewUrl: null,
+            reg: {name:'', email:'', password:'', zone:'', branch:'', dept:''},
+            newReq: {title:'', amount:'', desc:'', file:null},
+            stats: {}, pendingUsers: [], requests: [],
+            filterStatus: '', filterSearch: '',
+            selectedReq: null, adminNote: '',
             ctx: null, isDrawing: false
         }
     },
     computed: {
-        pageTitle() {
-            const map = {'dashboard':'ภาพรวมระบบ','pending_users':'อนุมัติผู้สมัคร','requests':'คำขอใช้งบทั้งหมด','documents':'คลังเอกสาร','export':'Export Data'};
-            return map[this.view] || this.view;
+        pageName() {
+            const map = {'dashboard':'ภาพรวม','users':'อนุมัติผู้สมัคร','requests':'คำขอทั้งหมด','create':'สร้างคำขอ','my_requests':'ประวัติของฉัน','export':'Export','logs':'Logs'};
+            return map[this.page] || this.page;
         },
-        filteredRequests() {
-            if(!this.allRequests) return [];
-            return this.allRequests.filter(r => {
-                return (!this.filters.zone || r.zone == this.filters.zone) &&
-                       (!this.filters.status || r.status == this.filters.status) &&
-                       (!this.filters.search || r.requester.toLowerCase().includes(this.filters.search.toLowerCase()));
+        filteredReqs() {
+            return this.requests.filter(r => {
+                const matchStatus = !this.filterStatus || r.status === this.filterStatus;
+                const matchSearch = !this.filterSearch || r.requester.toLowerCase().includes(this.filterSearch.toLowerCase());
+                return matchStatus && matchSearch;
             });
         }
     },
     methods: {
-        async callApi(payload) {
-            this.loading = true; this.loadingText = 'Loading...';
+        async api(payload) {
+            this.loading = true;
             try {
-                const res = await fetch(API_URL, { method:'POST', body:JSON.stringify(payload) });
+                const res = await fetch(API_URL, {method:'POST', body:JSON.stringify(payload)});
                 return await res.json();
             } catch(e) { Swal.fire('Error','Connection Failed','error'); return null; }
             finally { this.loading = false; }
         },
         async login() {
-            const res = await this.callApi({ action:'login', ...this.loginForm });
-            if(res?.status === 'success') {
-                if(res.user.role !== 'ADMIN') return Swal.fire('Access Denied','สำหรับ Admin เท่านั้น','warning');
+            const res = await this.api({action:'login', ...this.loginForm});
+            if(res?.status==='success') {
                 this.user = res.user;
-                this.fetchData();
-            } else Swal.fire('Error', res?.message, 'error');
+                this.page = this.user.role === 'ADMIN' ? 'dashboard' : 'my_requests';
+                this.loadData();
+            } else Swal.fire('Login Failed', res?.message, 'error');
         },
-        logout() { this.user = null; this.loginForm = {email:'',password:''}; },
-        
-        async fetchData() {
-            const res = await this.callApi({ action:'getAdminDashboard' });
-            if(res?.status === 'success') {
+        async register() {
+            const res = await this.api({action:'register', ...this.reg});
+            if(res?.status==='success') { Swal.fire('Success','รออนุมัติ','success'); this.authMode='login'; }
+        },
+        logout() { this.user = null; this.loginForm={}; },
+        async loadData() {
+            const res = await this.api({action:'getData', role:this.user.role, email:this.user.email});
+            if(res?.status==='success') {
                 this.stats = res.data.stats;
                 this.pendingUsers = res.data.pendingUsers.map(u => ({...u, tempRole:'USER', tempLimit:0}));
-                this.allRequests = res.data.allRequests;
+                this.requests = res.data.requests;
             }
         },
-        async processUser(u, isApprove) {
-            const res = await this.callApi({ action:'approveUser', targetEmail:u.email, isApprove, role:u.tempRole, limit:u.tempLimit, adminEmail:this.user.email });
-            if(res?.status === 'success') { Swal.fire('Success','Saved','success'); this.fetchData(); }
+        setPage(p) { this.page = p; this.loadData(); },
+        
+        // Actions
+        async submitRequest() {
+            let fileData = null, fileName = null;
+            if(this.newReq.file) {
+                fileData = await new Promise(r => { const rd = new FileReader(); rd.onload=e=>r(e.target.result); rd.readAsDataURL(this.newReq.file); });
+                fileName = this.newReq.file.name;
+            }
+            const res = await this.api({
+                action:'createRequest', ...this.newReq, 
+                name:this.user.name, email:this.user.email, dept:this.user.dept, zone:this.user.zone, branch:this.user.branch,
+                fileData, fileName, mimeType: this.newReq.file?.type
+            });
+            if(res?.status==='success') { Swal.fire('Success','ส่งคำขอแล้ว','success'); this.page='my_requests'; this.loadData(); }
         },
-        openDetail(req) {
-            this.selectedReq = req; this.adminNote = '';
-            if(req.status === 'PENDING_HQ') setTimeout(this.initCanvas, 300);
+        handleFile(e) { this.newReq.file = e.target.files[0]; },
+        
+        async approveUser(u, isApprove) {
+            const res = await this.api({action:'approveUser', targetEmail:u.email, isApprove, role:u.tempRole, limit:u.tempLimit, adminEmail:this.user.email});
+            if(res?.status==='success') { Swal.fire('Saved','','success'); this.loadData(); }
         },
+        
+        openDetail(req) { this.selectedReq = req; if(req.status==='PENDING_HQ') setTimeout(this.initCanvas, 300); },
         async processReq(status) {
-            if(status==='APPROVED' && this.isCanvasBlank()) return Swal.fire('Alert','เซ็นชื่อก่อนอนุมัติ','warning');
+            if(status==='APPROVED' && this.isCanvasBlank()) return Swal.fire('Alert','เซ็นชื่อก่อน','warning');
             const sig = this.$refs.sigCanvas ? this.$refs.sigCanvas.toDataURL() : '';
-            const res = await this.callApi({ action:'processRequest', reqId:this.selectedReq.id, status, note:this.adminNote, signature:sig, adminEmail:this.user.email });
-            if(res?.status === 'success') { Swal.fire('Success','Saved','success'); this.selectedReq=null; this.fetchData(); }
+            const res = await this.api({action:'processRequest', reqId:this.selectedReq.id, status, note:this.adminNote, signature:sig, adminEmail:this.user.email});
+            if(res?.status==='success') { Swal.fire('Saved','','success'); this.selectedReq=null; this.loadData(); }
         },
-        async downloadCSV(type) {
-            const res = await this.callApi({ action:'exportData', type, adminEmail:this.user.email });
-            if(res?.status === 'success') {
+        async doExport(type) {
+            const res = await this.api({action:'export', type, adminEmail:this.user.email});
+            if(res?.status==='success') {
                 let link = document.createElement("a");
                 link.href = encodeURI("data:text/csv;charset=utf-8," + res.data.map(e=>e.join(",")).join("\n"));
                 link.download = `export_${type}.csv`; link.click();
             }
         },
-        
-        // Utils
-        previewFile(id) { this.previewUrl = `https://drive.google.com/file/d/${id}/preview`; },
-        formatMoney(v) { return new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(v); },
-        formatDate(d) { return new Date(d).toLocaleDateString('th-TH'); },
-        getStatusClass(s) { return ({'APPROVED':'bg-green-100 text-green-700','REJECTED':'bg-red-100 text-red-700'}[s]||'bg-orange-100 text-orange-700') + ' px-2 py-1 rounded text-xs font-bold'; },
-        
+
+        // Helpers
+        currency(v) { return new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(v); },
+        date(d) { return new Date(d).toLocaleDateString('th-TH'); },
+        statusClass(s) { return ({'APPROVED':'bg-green-100 text-green-700','REJECTED':'bg-red-100 text-red-700'}[s]||'bg-orange-100 text-orange-700') + ' px-2 py-1 rounded text-xs font-bold'; },
+
         // Canvas
         initCanvas() {
             const c = this.$refs.sigCanvas; if(!c) return;
-            this.ctx = c.getContext('2d'); this.ctx.lineWidth = 2; this.isDrawing = false;
-            c.addEventListener('mousedown', this.startD); c.addEventListener('mouseup', this.endD); c.addEventListener('mousemove', this.drawD);
-            c.addEventListener('touchstart', (e)=>{e.preventDefault();this.startD(e.touches[0])}); c.addEventListener('touchend', this.endD); c.addEventListener('touchmove', (e)=>{e.preventDefault();this.drawD(e.touches[0])});
+            this.ctx = c.getContext('2d'); this.ctx.lineWidth=2; this.isDrawing=false;
+            c.addEventListener('mousedown',this.startD); c.addEventListener('mouseup',this.endD); c.addEventListener('mousemove',this.drawD);
+            c.addEventListener('touchstart',(e)=>{e.preventDefault();this.startD(e.touches[0])}); c.addEventListener('touchend',this.endD); c.addEventListener('touchmove',(e)=>{e.preventDefault();this.drawD(e.touches[0])});
         },
         startD(e) { this.isDrawing=true; this.drawD(e); },
         endD() { this.isDrawing=false; this.ctx.beginPath(); },
         drawD(e) {
             if(!this.isDrawing) return;
-            const rect = this.$refs.sigCanvas.getBoundingClientRect();
-            this.ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
-            this.ctx.stroke(); this.ctx.beginPath(); this.ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+            const r = this.$refs.sigCanvas.getBoundingClientRect();
+            this.ctx.lineTo(e.clientX-r.left, e.clientY-r.top);
+            this.ctx.stroke(); this.ctx.beginPath(); this.ctx.moveTo(e.clientX-r.left, e.clientY-r.top);
         },
         clearSig() { this.ctx.clearRect(0,0,500,150); },
         isCanvasBlank() { return !this.ctx.getImageData(0,0,500,150).data.some(c=>c!==0); }
